@@ -16,6 +16,7 @@
 
 package cn.xuyonghong.network
 
+import android.text.TextUtils
 import cn.xuyonghong.network.config.NetworkConfig
 import cn.xuyonghong.network.interceptor.HeaderInterceptor
 import cn.xuyonghong.network.logger.HttpLogger
@@ -63,15 +64,19 @@ class NetworkClient {
                 addNetworkInterceptor(it)
             }
         }.build()
-        //init retrofit
-        mRetrofit = Retrofit.Builder().apply {
-            client(mOkHttpClient)
-            baseUrl(config.baseUrl)
-            addConverterFactory(GsonConverterFactory.create())
-            config.converterFactoryList?.forEach {
-                addConverterFactory(it)
-            }
-        }.build()
+        if (TextUtils.isEmpty(config.baseUrl)) {
+            throw IllegalArgumentException("config.baseUrl must not be null or empty!")
+        } else {
+            //init retrofit
+            mRetrofit = Retrofit.Builder().apply {
+                client(mOkHttpClient)
+                baseUrl(config.baseUrl ?: "")
+                addConverterFactory(GsonConverterFactory.create())
+                config.converterFactoryList?.forEach {
+                    addConverterFactory(it)
+                }
+            }.build()
+        }
     }
 
     /**
